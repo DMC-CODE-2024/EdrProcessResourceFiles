@@ -276,10 +276,7 @@ CREATE TABLE if not exists test_imei_details (
   file_name varchar(60) DEFAULT NULL,
   PRIMARY KEY (id)
 );
-
-insert into app.sys_param ( tag , value , feature_name) values ( 'EdrProcessedFileStoragePath' , '/u02/eirsdata/etl_module/etl_edr/p3_output/' ,'EDR');
-insert into app.sys_param ( tag , value , feature_name) values ('EDR_Sql_Query_Folder' ,'/u02/eirsdata/etl_module/etl_edr/sql_input/','EDR');
-insert into app.sys_param ( tag , value , feature_name) values ('EDR_IMEI_LENGTH_CHECK','True','EDR');
+ insert into app.sys_param ( tag , value , feature_name) values ('EDR_IMEI_LENGTH_CHECK','True','EDR');
 insert into app.sys_param ( tag , value , feature_name) values ('EDR_IMEI_LENGTH_VALUE','14,15,16','EDR');
 insert into app.sys_param ( tag , value , feature_name) values ('EDR_NULL_IMEI_CHECK','True','EDR');
 insert into app.sys_param ( tag , value , feature_name) values ('EDR_ALPHANUMERIC_IMEI_CHECK','True','EDR');
