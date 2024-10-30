@@ -292,4 +292,8 @@ insert into app.sys_param (tag,value) values ('SMART_SM_EDR1_FILE_PATTERN','SMAR
 insert into app.sys_param (tag,value) values ('METFONE_MF_EDR1_FILE_PATTERN','METFONE_EIRID-16-8');
 insert into app.sys_param (tag,value) values ('SEATEL_ST_EDR1_FILE_PATTERN ','SEATEL_EIRID-15-8');
 
+insert ignore into app.sys_param (tag , value, feature_name) values ('TEST_IMEI_SERIES ','001,0044','EDR');
+insert ignore into app.sys_param (tag , value, feature_name) values ('IS_USED_EXTENDED_DAYS','365','EDR');
+insert ignore into app.sys_param (tag,value, feature_name) values ('enableForeignSimHandling','True','EDR');
+
 EOFMYSQL
