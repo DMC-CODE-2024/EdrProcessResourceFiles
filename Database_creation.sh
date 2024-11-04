@@ -295,5 +295,7 @@ insert into app.sys_param (tag,value) values ('SEATEL_ST_EDR1_FILE_PATTERN ','SE
 insert ignore into app.sys_param (tag , value, feature_name) values ('TEST_IMEI_SERIES ','001,0044','EDR');
 insert ignore into app.sys_param (tag , value, feature_name) values ('IS_USED_EXTENDED_DAYS','365','EDR');
 insert ignore into app.sys_param (tag,value, feature_name) values ('enableForeignSimHandling','True','EDR');
+insert ignore into app.sys_param (tag,value, feature_name) values ('GRACE_PERIOD_END_DATE','2024-12-31','General');
+
 
 EOFMYSQL
