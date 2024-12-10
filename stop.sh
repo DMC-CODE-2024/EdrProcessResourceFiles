@@ -1,6 +1,6 @@
 #!/bin/bash
 
-. ~/.bash_profile  > /dev/null
+. ~/.bash_profile
 
 operator=$1
 
