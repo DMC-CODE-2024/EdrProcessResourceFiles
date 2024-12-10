@@ -1,106 +1,140 @@
 #!/bin/bash
-#set -x
-
-. /home/eirsapp/.bash_profile >> /dev/null
-
-VAR=""
-script_name="start.sh"
-process_file="application.config"
-sys_ip_file="sys_ip.conf"
-home_path="/u01/eirsapp/etl_module/etl_edr/"
-system_port="22024"
 
 
-check_script_status=`ps -ef | grep $script_name |grep -v vi | grep -v grep | wc -l`
-if [ "$check_script_status" -gt 5 ]
+#. /home/eirsapp/.bash_profile > /dev/null
+
+
+module_name="etl_edr"
+main_module="" #keep it empty "" if there is no main module 
+
+#log_level="INFO" # INFO, DEBUG, ERROR
+
+########### DO NOT CHANGE ANY CODE OR TEXT AFTER THIS LINE #########
+
+script_status=`ps -ef | grep ./${module_name} | grep -v vi | grep -v grep | wc -l`
+if [ "$script_status" -gt 0 ]
 then
-	exit
+  echo "${module_name} related processes are currently running... process skip to start !!!"
+  echo `ps -ef | grep ./${module_name} | grep -v vi | grep -v grep`
+  exit
+
 fi
-primary=($(cat $sys_ip_file | grep P))
-echo "Primary ip is ${primary:2:${#primary}}"
-primary_ip=${primary:2:${#primary}}
 
-secondary=($(cat $sys_ip_file | grep S))
-echo "Secondary ip is ${secondary:2:${#secondary}}"
-secondary_ip=${secondary:2:${#secondary}}
+build_path="${APP_HOME}/${module_name}_module"
+log_file="${LOG_HOME}/${module_name}_module/${module_name}_$(date "+%Y%m%d").log"
 
-virtual=($(cat $sys_ip_file | grep V))
-echo "Virtual ip is ${virtual:2:${#virtual}}"
-virtual_ip=${virtual:2:${#virtual}}
+mkdir ${LOG_HOME}/${module_name}_module -p
 
-nc -z $primary_ip $system_port > /dev/null
+cd ${build_path}
+
+source application.properties > /dev/null
+
+op_names+=("smart" "metfone" "cellcard" "seatel")
+node1_name=${node1}
+node2_name=${node2}
+
+
+### Check VIP status of current node ###
+
+echo "***************************************************************" >> ${log_file}
+echo "** $(date): starting ${module_name} process **" >> ${log_file}
+echo "***************************************************************" >> ${log_file}
+
+echo "$(date): ETL node1 is ${node1_name}" >> ${log_file}
+echo "$(date): ETL node2 is ${node2_name}" >> ${log_file}
+echo "$(date): virtual IP is ${vip_ip}" >> ${log_file}
+
+nc -z $node1_name $ssh_port > /dev/null
 t1=$?
-echo "Primary IP Status: "$t1
-nc -z $secondary_ip $system_port > /dev/null
+echo "$(date): ETL node1 IP response time: "$t1 >> ${log_file}
+
+nc -z $node2_name $ssh_port > /dev/null
 t2=$?
-echo "Secondary IP Status: "$t2
-vip_status=`/usr/sbin/ip add show | grep "$virtual_ip/"`
+echo "$(date): ETL node2 IP response time: "$t2 >> ${log_file}
 
-process_names=($(awk -F ',' '{printf "%s ", $1}' $process_file))
-vip_status_flag=($(awk -F ',' '{printf "%s ", $7}' $process_file))
-run_command=($(awk -F ',' '{printf "%s ", $9}' $process_file))
-installation_path=($(awk -F ',' '{printf "%s ", $10}' $process_file))
+vip_status=`/usr/sbin/ip add show | grep "$vip_ip/"` ## to check if current server is running as VIP
+vip_status_vip=""
 
-if [ "$t1" -eq 0 ] && [ "$t2" -eq 0 ]
-then
-	echo "t1 and t2 are 0"
-	for (( i=0; i<${#process_names[@]}; i++ ));
-        do
-		if [ "${vip_status_flag[i]}" = Y ] && [ "$vip_status" != "$VAR" ]
-		then
-			echo "going to start ${process_names[i]}"
-			cd ${installation_path[i]}
-			script_status=`ps -ef | grep "${run_command[i]}" | grep -v grep`
-			if [ "$script_status" != "$VAR" ]
-			then
-				echo "process ${process_names[i]} already running"
-				continue
-			else
-				echo "starting ${process_names[i]}"
-			         ./run.sh ${process_names[i]} &
-			fi
-			cd $home_path
-		elif [ "${vip_status_flag[i]}" = N ] && [ "$vip_status" == "$VAR" ]
-		then
-			echo "Flag is N in processConf and Vip is Not Here"
-			echo "going to start ${process_names[i]}"
-			cd ${installation_path[i]}
-			script_status=`ps -ef | grep "${run_command[i]}" | grep -v grep`
-			if [ "$script_status" != "$VAR" ]
-			then
-				echo "process ${process_names[i]} already running"
-				continue
-			else
-				echo "starting ${process_names[i]}"
-			        ./run.sh ${process_names[i]} &
-			fi
-			cd $home_path
-		else
-			echo "skipped ${process_names[i]}"
-		fi
-	done
-else
-	myarr=($(awk -F ',' '{print $1}' $process_file))
-	for (( i=0; i<${#myarr[@]}; i++ ));
-	do
-		status=`ps -ef | grep ${myarr[i]} | grep -v grep`
-		if [ "$status" != "$VAR" ]
-		then
-			echo "${myarr[i]} already running"
-			echo $status
-		else
-			echo "going to start ${myarr[i]}"
-			cd ${installation_path[i]}
-			script_status=`ps -ef | grep ${myarr[i]} | grep -v grep`
-			if [ "$script_status" != "$VAR" ]
-			then
-				echo "process ${myarr[i]} already running"
-				continue
-			else
-				echo "starting ${myarr[i]}"
-				./run.sh  ${myarr[i]} &
-			fi
-			cd $home_path
-		fi
-	done
-fi
+echo "$(date): VIP active operator list: ${op_vip_active}" >> ${log_file}
+
+## check vip_status_flag for all operators
+
+for ((i=0; i<${#op_names[@]}; i++)); # loop operator who is listed in vip_active config 
+do
+  vip_status_flag[i]="N"
+
+  for j in ${op_vip_active//,/ }
+  do
+    if [ "${op_names[i]}" == "${j}" ]
+    then
+      vip_status_flag[i]="Y"
+    fi
+  
+  done
+done
+
+
+## start process by checking operator vip status ##
+for (( i=0; i<${#op_names[@]}; i++ ));
+do
+
+  script_status=`ps -ef | grep ${module_name} | grep ${op_names[i]} | grep -v grep`
+
+  if [ "$script_status" != "" ]
+  then
+    echo "$(date): ${module_name} process for ${op_names[i]} already running" >> ${log_file}
+
+  else
+
+    ## primary & secondary noes are up
+    
+    p1_p2_process=${module_name}_p1_p2
+
+    cd ${build_path}/${p1_p2_process}
+
+    if [ "$t1" -eq 0 ] && [ "$t2" -eq 0 ]
+    then
+      echo "$(date): both ETL node1 (${node1_name}) and node2 (${node2_name}) are up and running" >> ${log_file} 
+
+      if [ "${vip_status_flag[i]}" = Y ] && [ "$vip_status" != "" ]   ## operator enabled (Y) + current node is VIP running
+      then
+        echo "$(date): operator ${op_names[i]} will run in VIP node and current node is VIP active..." >> ${log_file}
+        script_status=`ps -ef | grep ${module_name} | grep ${op_names[i]} | grep -v grep`
+
+        if [ "$script_status" != "" ]
+        then
+          echo "$(date): ${module_name} process for ${op_names[i]} already running" >> ${log_file}
+
+        else
+	  echo "$(date): calling P1_P2 process to start for ${op_names[i]}..." >> ${log_file}
+          ./${p1_p2_process}.sh ${op_names[i]} 1>> ${log_file} 2>> ${log_file} &   ## start process for all (Y) operators in parallel 
+
+        fi
+
+      elif [ "${vip_status_flag[i]}" = N ] && [ "$vip_status" == "" ]  ## operator not enabled (N) + current node is no VIP running
+      then
+        echo "$(date): operator ${op_name[i]} will run in non-VIP node and current node is not VIP active..."
+        script_status=`ps -ef | grep ${module_name} | grep ${op_names[i]} | grep -v grep`
+
+        if [ "$script_status" != "" ]
+        then
+          echo "$(date): ${module_name} process for ${op_names[i]} already running" >> ${log_file}
+        else
+ 	  echo "$(date): calling P1_P2 process to start for ${op_names[i]}..." >> ${log_file}
+          ./${p1_p2_process}.sh ${op_names[i]} 1>> ${log_file} 2>>${log_file} &  ## start process for all disabed operator in parallel
+
+        fi
+      else  ## operator not enabled (N) + current node is VIP running   or  operator enabled (Y) + current node is not VIP running
+        echo "$(date): ${module_name} process is skipped for ${op_names[i]}..." >> ${log_file}
+      fi
+
+    ## ## primary or secondary nodes is down
+
+    else
+      echo "$(date): another node is not reachable, thus all operators process will run from this node only..." >> ${log_file}
+      echo "$(date): calling P1_P2 process to start for ${op_names[i]}..." >> ${log_file}
+      ./${p1_p2_process}.sh ${op_names[i]} 1>> ${log_file} 2>>${log_file} &   ## start process p1 for all data source in parallel 
+
+    fi
+  fi
+done
