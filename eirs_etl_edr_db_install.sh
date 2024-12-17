@@ -301,17 +301,17 @@ insert into app.sys_param (tag,value, feature_name,type,active,remark,descriptio
 insert into app.sys_param (tag,value, feature_name,type,active,remark,description,user_type,modified_by) values ('METFONE_MF_EDR1_FILE_PATTERN','METFONE_EIRID-16-8','EDR',0,1,'','file pattern for METFONE MF_EDR1 ','system','system');
 insert into app.sys_param (tag,value, feature_name,type,active,remark,description,user_type,modified_by) values ('SEATEL_ST_EDR1_FILE_PATTERN' ,'SEATEL_EIRID-15-8','EDR',0,1,'','file pattern for SEATEL ST_EDR1','system','system');
 
-INSERT IGNORE INTO feature_rule (feature, grace_action, name, post_grace_action, rule_order, user_type, failed_rule_action_grace, failed_rule_action_post_grace, output) VALUES ('EDR', 'Skip', 'EXISTS_IN_ALL_EDR_ACTIVE_DB', 'Skip', 5, 'default', 'Record', 'Record', 'NO');
-INSERT IGNORE INTO feature_rule (feature, grace_action, name, post_grace_action, rule_order, user_type, failed_rule_action_grace, failed_rule_action_post_grace, output) VALUES ('EDR', 'Report', 'IMEI_ALPHANUMERIC', 'Report', 2, 'default', 'Record', 'Record', 'NO');
-INSERT IGNORE INTO feature_rule (feature, grace_action, name, post_grace_action, rule_order, user_type, failed_rule_action_grace, failed_rule_action_post_grace, output) VALUES ('EDR', 'Report', 'IMEI_LENGTH', 'Report', 3, 'default', 'Record', 'Record', 'Yes');
-INSERT IGNORE INTO feature_rule (feature, grace_action, name, post_grace_action, rule_order, user_type, failed_rule_action_grace, failed_rule_action_post_grace, output) VALUES ('EDR', 'Report', 'IMEI_NULL', 'Report', 1, 'default', 'Record', 'Record', 'No');
-INSERT IGNORE INTO feature_rule (feature, grace_action, name, post_grace_action, rule_order, user_type, failed_rule_action_grace, failed_rule_action_post_grace, output) VALUES ('EDR', 'Report', 'MDR', 'Report', 4, 'default', 'Record', 'Record', 'Yes');
+INSERT IGNORE INTO app.feature_rule (feature, grace_action, name, post_grace_action, rule_order, user_type, failed_rule_action_grace, failed_rule_action_post_grace, output) VALUES ('EDR', 'Skip', 'EXISTS_IN_ALL_EDR_ACTIVE_DB', 'Skip', 5, 'default', 'Record', 'Record', 'NO');
+INSERT IGNORE INTO app.feature_rule (feature, grace_action, name, post_grace_action, rule_order, user_type, failed_rule_action_grace, failed_rule_action_post_grace, output) VALUES ('EDR', 'Report', 'IMEI_ALPHANUMERIC', 'Report', 2, 'default', 'Record', 'Record', 'NO');
+INSERT IGNORE INTO app.feature_rule (feature, grace_action, name, post_grace_action, rule_order, user_type, failed_rule_action_grace, failed_rule_action_post_grace, output) VALUES ('EDR', 'Report', 'IMEI_LENGTH', 'Report', 3, 'default', 'Record', 'Record', 'Yes');
+INSERT IGNORE INTO app.feature_rule (feature, grace_action, name, post_grace_action, rule_order, user_type, failed_rule_action_grace, failed_rule_action_post_grace, output) VALUES ('EDR', 'Report', 'IMEI_NULL', 'Report', 1, 'default', 'Record', 'Record', 'No');
+INSERT IGNORE INTO app.feature_rule (feature, grace_action, name, post_grace_action, rule_order, user_type, failed_rule_action_grace, failed_rule_action_post_grace, output) VALUES ('EDR', 'Report', 'MDR', 'Report', 4, 'default', 'Record', 'Record', 'Yes');
    
-INSERT IGNORE INTO rule (name, output, state) VALUES ('EXISTS_IN_ALL_EDR_ACTIVE_DB', 'No', 'Enabled');
-INSERT IGNORE INTO rule (name, output, state) VALUES ('IMEI_ALPHANUMERIC', 'No', 'Enabled');
-INSERT IGNORE INTO rule (name, output, state) VALUES ('IMEI_LENGTH', 'No', 'Enabled');
-INSERT IGNORE INTO rule (name, output, state) VALUES ('IMEI_NULL', 'No', 'Enabled');
-INSERT IGNORE INTO rule (name, output, state) VALUES ('MDR', 'No', 'Enabled');
+INSERT IGNORE INTO app.rule (name, output, state) VALUES ('EXISTS_IN_ALL_EDR_ACTIVE_DB', 'No', 'Enabled');
+INSERT IGNORE INTO app.rule (name, output, state) VALUES ('IMEI_ALPHANUMERIC', 'No', 'Enabled');
+INSERT IGNORE INTO app.rule (name, output, state) VALUES ('IMEI_LENGTH', 'No', 'Enabled');
+INSERT IGNORE INTO app.rule (name, output, state) VALUES ('IMEI_NULL', 'No', 'Enabled');
+INSERT IGNORE INTO app.rule (name, output, state) VALUES ('MDR', 'No', 'Enabled');
 
 
 EOFMYSQL`
