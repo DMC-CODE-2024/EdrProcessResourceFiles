@@ -297,5 +297,11 @@ insert ignore into app.sys_param (tag , value, feature_name) values ('IS_USED_EX
 insert ignore into app.sys_param (tag,value, feature_name) values ('enableForeignSimHandling','True','EDR');
 insert ignore into app.sys_param (tag,value, feature_name) values ('GRACE_PERIOD_END_DATE','2024-12-31','General');
 
-
+INSERT IGNORE INTO feature_rule (feature, grace_action, name, post_grace_action, rule_order, user_type, failed_rule_action_grace, failed_rule_action_post_grace, output) VALUES ('EDR', 'Disabled', 'EXISTS_IN_ALL_EDR_ACTIVE_DB', 'Skip', 5, 'default', 'Record', 'Record', 'NO');
+INSERT IGNORE INTO feature_rule (feature, grace_action, name, post_grace_action, rule_order, user_type, failed_rule_action_grace, failed_rule_action_post_grace, output) VALUES ('EDR', 'Disabled', 'IMEI_ALPHANUMERIC', 'Report', 2, 'default', 'Record', 'Record', 'NO');
+INSERT IGNORE INTO feature_rule (feature, grace_action, name, post_grace_action, rule_order, user_type, failed_rule_action_grace, failed_rule_action_post_grace, output) VALUES ('EDR', 'Disabled', 'IMEI_LENGTH', 'Report', 3, 'default', 'Record', 'Record', 'Yes');
+INSERT IGNORE INTO feature_rule (feature, grace_action, name, post_grace_action, rule_order, user_type, failed_rule_action_grace, failed_rule_action_post_grace, output) VALUES ('EDR', 'Disabled', 'IMEI_NULL', 'Report', 1, 'default', 'Record', 'Record', 'No');
+  INSERT IGNORE INTO feature_rule (feature, grace_action, name, post_grace_action, rule_order, user_type, failed_rule_action_grace, failed_rule_action_post_grace, output) VALUES ('EDR', 'Disabled', 'MDR', 'Report', 4, 'default', 'Record', 'Record', 'Yes');
+   
+INSERT IGNORE INTO rule (name, output, state) VALUES ('EXISTS_IN_ALL_EDR_ACTIVE_DB', 'No', 'Disabled');
 EOFMYSQL
