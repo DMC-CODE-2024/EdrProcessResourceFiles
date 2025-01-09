@@ -11,7 +11,7 @@ main_module="" #keep it empty "" if there is no main module
 
 ########### DO NOT CHANGE ANY CODE OR TEXT AFTER THIS LINE #########
 
-script_status=`ps -ef | grep ./${module_name} | grep -v vi | grep -v grep | wc -l`
+script_status=`ps -ef | grep ./${module_name} | grep -v vi | grep -v grep | grep -v etl_edr_p4 | wc -l`
 if [ "$script_status" -gt 0 ]
 then
   echo "${module_name} related processes are currently running... process skip to start !!!"
