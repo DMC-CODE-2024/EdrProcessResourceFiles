@@ -21,6 +21,13 @@ source application.properties
 
 dbDecryptPassword=$(java -jar ${pass_dypt} dbEncyptPassword)
 
+function get_value()
+{
+  key=$1
+  grep "^$key=" "$commonConfigurationFile" | cut -d'=' -f2
+}
+
+alertUrl=$(get_value "eirs.alert.url");
 
 function generateAlertUsingUrl() 
 {
@@ -34,16 +41,8 @@ function generateAlertUsingUrl()
   echo $curlOutput
 }
 
-
-function get_value() 
-{
-  key=$1
-  grep "^$key=" "$commonConfigurationFile" | cut -d'=' -f2
-}
-
 echo "$(date) ${module_name} [${op_name}]-[${counter}]: ==> starting sql process..."   
 
-alertUrl=$(get_value "eirs.alert.url");
 sql_input_path=${INPUTPATH}/${op_name}/${counter}  ## {INPUTPATH} is defined in app config file
 
 mkdir ${sql_input_path} -p
@@ -80,7 +79,7 @@ else
 
       ## update status to stats table ##
 
-      query="update ${STATSCHEMA}.cdr_file_processed_detail  set modified_on='$now1', status = 'SQL_START' , sql_process_start_time= '$now1' , total_update_sql = '$wordcnt' where FILE_NAME = '$realFileName' ;"
+     query="update ${STATSCHEMA}.cdr_file_processed_detail  set modified_on='$now1', status = 'sql_inprogress' , sql_process_start_time= '$now1' , total_QUERY_sql = '$wordcnt' where FILE_NAME = '$realFileName' ;"
 
       mysql -h$dbIp -P${dbPort}  ${STATSCHEMA} -u${dbUsername}  -p${dbDecryptPassword} <<EOFMYSQL
 
@@ -117,7 +116,7 @@ EOFMYSQL
 
       now2="$(date +%F_%T)"
 
-      query="update ${STATSCHEMA}.cdr_file_processed_detail  set modified_on= '$now2' , status = 'SQL_DONE' , sql_process_start_time= '$now1' , sql_process_end_time = '$now2' , total_query_sql = '$wordcnt' , total_update_sql = '$wordcnt' where FILE_NAME = '$realFileName' ;"
+      query="update ${STATSCHEMA}.cdr_file_processed_detail  set modified_on= '$now2' , status = 'sql_done' , sql_process_start_time= '$now1' , sql_process_end_time = '$now2' , total_query_sql = '$wordcnt' , total_update_sql = '$wordcnt' where FILE_NAME = '$realFileName' ;"
 		
       mysql -h$dbIp -P${dbPort}  ${STATSCHEMA} -u${dbUsername}  -p${dbDecryptPassword} <<EOFMYSQL
 
@@ -146,4 +145,5 @@ EOFMYSQL
 fi
 
 echo "$(date) ${module_name} [${op_name}]-[${counter}]: sql process for ${op_name} [${counter}] is completed..."
+
 
